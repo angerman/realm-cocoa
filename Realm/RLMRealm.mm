@@ -50,19 +50,17 @@ void RLMDisableSyncToDisk() {
 @public
     Realm::NotificationFunction _notification;
 }
-@property (nonatomic, strong) RLMRealm *realm;
-@property (nonatomic, copy) RLMNotificationBlock block;
-
 @end
 
 @implementation RLMNotificationToken
 - (void)dealloc
 {
-    if (_realm || _block) {
+    if (_notification) {
         NSLog(@"RLMNotificationToken released without unregistering a notification. You must hold "
               @"on to the RLMNotificationToken returned from addNotificationBlock and call "
               @"removeNotification: when you no longer wish to recieve RLMRealm notifications.");
     }
+    _notification.reset();
 }
 @end
 
@@ -486,10 +484,8 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
     }
 
     RLMNotificationToken *token = [[RLMNotificationToken alloc] init];
-    token.realm = self;
-    token.block = block;
     token->_notification = token->_notification.make_shared([=](const std::string notification) {
-        token.block([NSString stringWithUTF8String:notification.c_str()], token.realm);
+        block([NSString stringWithUTF8String:notification.c_str()], self);
     });
     _realm->add_notification(token->_notification);
     return token;
@@ -499,7 +495,7 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
     [self verifyThread];
     if (token) {
         _realm->remove_notification(token->_notification);
-        token.realm = nil;
+        token->_notification.reset();
     }
 }
 
