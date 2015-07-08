@@ -151,7 +151,6 @@ static void changeArray(__unsafe_unretained RLMArrayLinkView *const ar, NSKeyVal
     return !_backingLinkView->is_attached();
 }
 
-<<<<<<< HEAD
 // These two methods take advantage of that LinkViews are interned, so there's
 // only ever at most one LinkView object per SharedGroup for a given row+col.
 - (BOOL)isEqual:(id)object {
@@ -165,27 +164,14 @@ static void changeArray(__unsafe_unretained RLMArrayLinkView *const ar, NSKeyVal
     return reinterpret_cast<NSUInteger>(_backingLinkView.get());
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {
-    RLMLinkViewArrayValidateAttached(self);
-
-    __autoreleasing RLMCArrayHolder *items;
-||||||| merged common ancestors
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id [])buffer count:(NSUInteger)len {
-    RLMLinkViewArrayValidateAttached(self);
-
-    __autoreleasing RLMCArrayHolder *items;
-=======
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
                                   objects:(__unused __unsafe_unretained id [])buffer
                                     count:(NSUInteger)len {
     __autoreleasing RLMFastEnumerator *enumerator;
->>>>>>> Enumerate a frozen copy of RLMResults/RLMArray
     if (state->state == 0) {
         RLMLinkViewArrayValidateAttached(self);
 
-        enumerator = [[RLMFastEnumerator alloc] initWithTableView:_backingLinkView->get_target_table().where(_backingLinkView).find_all()
-                                                            realm:_realm
-                                                     objectSchema:_objectSchema];
+        enumerator = [[RLMFastEnumerator alloc] initWithCollection:self objectSchema:_objectSchema];
         state->extra[0] = (long)enumerator;
         state->extra[1] = self.count;
     }
@@ -438,6 +424,14 @@ static void RLMInsertObject(RLMArrayLinkView *ar, RLMObject *object, NSUInteger 
             context:(void *)context {
     RLMEnsureArrayObservationInfo(_observationInfo, keyPath, self, self);
     [super addObserver:observer forKeyPath:keyPath options:options context:context];
+}
+
+- (size_t)indexInSource:(NSUInteger)index {
+    return _backingLinkView->get(index).get_index();
+}
+
+- (realm::TableView)tableView {
+    return _backingLinkView->get_target_table().where(_backingLinkView).find_all();
 }
 
 @end
