@@ -18,6 +18,7 @@
 
 #import "RLMRealm_Private.h"
 #import "RLMUtil.hpp"
+#import "shared_realm.hpp"
 
 #import <realm/link_view.hpp>
 #import <realm/group.hpp>
@@ -30,7 +31,7 @@ namespace realm {
 
 @interface RLMRealm () {
     @public
-    std::shared_ptr<Realm> _realm;
+    std::shared_ptr<realm::Realm> _realm;
 }
 
 // FIXME - group should not be exposed

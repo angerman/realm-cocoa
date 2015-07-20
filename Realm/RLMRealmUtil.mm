@@ -68,7 +68,7 @@ void RLMInstallUncaughtExceptionHandler() {
         @synchronized(s_realmsPerPath) {
             for (NSMapTable *realmsPerThread in s_realmsPerPath.allValues) {
                 if (RLMRealm *realm = [realmsPerThread objectForKey:threadID]) {
-                    if (realm->_inWriteTransaction) {
+                    if (realm.inWriteTransaction) {
                         [realm cancelWriteTransaction];
                     }
                 }

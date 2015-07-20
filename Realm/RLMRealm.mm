@@ -303,9 +303,12 @@ static id RLMAutorelease(id value) {
 
 
 static void RLMCopyColumnMapping(RLMObjectSchema *targetSchema, const ObjectSchema &tableSchema) {
+    REALM_ASSERT_DEBUG(targetSchema.properties.count == tableSchema.properties.size());
+
     // copy updated column mapping
-    for (size_t i = 0; i < tableSchema.properties.size(); i++) {
-        ((RLMProperty *)targetSchema.properties[i]).column = tableSchema.properties[i].table_column;
+    for (auto &prop : tableSchema.properties) {
+        RLMProperty *targetProp = targetSchema[@(prop.name.c_str())];
+        targetProp.column = prop.table_column;
     }
 
     // re-order properties
@@ -405,7 +408,7 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
             return;
         }
 
-        RLMRealmSetSchemaAndAlign(strongRealm, [RLMSchema.sharedSchema copy], schema);
+        RLMRealmSetSchemaAndAlign(strongRealm, strongRealm.schema, schema);
         RLMMigrationBlock userBlock = migrationBlockForPath(path);
         if (userBlock) {
             RLMMigration *migration = [[RLMMigration alloc] initWithRealm:strongRealm key:key error:nil];
@@ -449,6 +452,7 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
                 }
                 uint64_t newVersion = schemaVersionForPath(path);
                 try {
+                    realm.schema = targetSchema;
                     realm->_realm->update_schema(schema, newVersion);
                     RLMRealmSetSchemaAndAlign(realm, targetSchema, schema);
                 } catch (const std::exception & exception) {

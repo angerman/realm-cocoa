@@ -279,7 +279,7 @@ static inline void RLMResultsValidateInWriteTransaction(__unsafe_unretained RLMR
 }
 
 - (RLMResults *)objectsWithPredicate:(NSPredicate *)predicate {
-    RLMCheckThread(_realm);
+    [_realm verifyThread];
 
     // copy array and apply new predicate creating a new query and view
     auto query = [self cloneQuery];
@@ -295,7 +295,7 @@ static inline void RLMResultsValidateInWriteTransaction(__unsafe_unretained RLMR
 }
 
 - (RLMResults *)sortedResultsUsingDescriptors:(NSArray *)properties {
-    RLMCheckThread(_realm);
+    [_realm verifyThread];
 
     auto query = [self cloneQuery];
     return [RLMResults resultsWithObjectClassName:self.objectClassName

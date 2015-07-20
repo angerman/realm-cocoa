@@ -28,6 +28,8 @@
 #import "RLMSwiftSupport.h"
 #import "RLMUtil.hpp"
 
+using namespace realm;
+
 // private properties
 @interface RLMObjectSchema ()
 @property (nonatomic, readwrite) NSDictionary *propertiesByName;
