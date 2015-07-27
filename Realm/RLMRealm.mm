@@ -346,10 +346,18 @@ static void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool ver
 }
 
 static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema) {
+    RLMSchema *sharedSchema = [RLMSchema sharedSchema];
+
     realm.schema = targetSchema;
     for (auto &aligned:*realm->_realm->config().schema) {
         RLMObjectSchema *objectSchema = targetSchema[@(aligned.first.c_str())];
         objectSchema.realm = realm;
+        if (RLMObjectSchema *sharedObjectSchema = [sharedSchema schemaForClassName:objectSchema.className]) {
+            objectSchema.objectClass = sharedObjectSchema.objectClass;
+            objectSchema.isSwiftClass = sharedObjectSchema.isSwiftClass;
+            objectSchema.accessorClass = sharedObjectSchema.accessorClass;
+            objectSchema.standaloneClass = sharedObjectSchema.standaloneClass;
+        }
         RLMCopyColumnMapping(objectSchema, aligned.second);
     }
 }
@@ -573,23 +581,43 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
 }
 
 - (void)beginWriteTransaction {
-    _realm->begin_transaction();
+    try {
+        _realm->begin_transaction();
+    }
+    catch (std::exception &ex) {
+        @throw RLMException(ex);
+    }
 }
 
 - (void)commitWriteTransaction {
-    _realm->commit_transaction();
+    try {
+        _realm->commit_transaction();
+    }
+    catch (std::exception &ex) {
+        @throw RLMException(ex);
+    }
 }
 
 - (void)transactionWithBlock:(void(^)(void))block {
-    _realm->begin_transaction();
-    block();
-    if (_realm->is_in_transaction()) {
-        _realm->commit_transaction();
+    try {
+        _realm->begin_transaction();
+        block();
+        if (_realm->is_in_transaction()) {
+            _realm->commit_transaction();
+        }
+    }
+    catch (std::exception &ex) {
+        @throw RLMException(ex);
     }
 }
 
 - (void)cancelWriteTransaction {
-    _realm->cancel_transaction();
+    try {
+        _realm->cancel_transaction();
+    }
+    catch (std::exception &ex) {
+        @throw RLMException(ex);
+    }
 }
 
 - (void)invalidate {
@@ -629,11 +657,14 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
 }
 
 - (void)dealloc {
-    if (_realm && _realm->is_in_transaction()) {
-        [self cancelWriteTransaction];
-        NSLog(@"WARNING: An RLMRealm instance was deallocated during a write transaction and all "
-              "pending changes have been rolled back. Make sure to retain a reference to the "
-              "RLMRealm for the duration of the write transaction.");
+    if (_realm) {
+        if (_realm->is_in_transaction()) {
+            [self cancelWriteTransaction];
+            NSLog(@"WARNING: An RLMRealm instance was deallocated during a write transaction and all "
+                  "pending changes have been rolled back. Make sure to retain a reference to the "
+                  "RLMRealm for the duration of the write transaction.");
+        }
+        _realm->remove_all_notifications();
     }
     [_notifier stop];
 }
@@ -772,8 +803,8 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
         }
         return version;
     }
-    catch (std::exception *exp) {
-        RLMSetErrorOrThrow(RLMMakeError(RLMErrorFail, *exp), outError);
+    catch (std::exception &exp) {
+        RLMSetErrorOrThrow(RLMMakeError(RLMErrorFail, exp), outError);
         return RLMNotVersioned;
     }
 }
