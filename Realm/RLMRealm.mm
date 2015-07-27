@@ -565,8 +565,9 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
     }
 
     RLMNotificationToken *token = [[RLMNotificationToken alloc] init];
+    __weak RLMRealm *weakRealm = self;
     token->_notification = token->_notification.make_shared([=](const std::string notification) {
-        block([NSString stringWithUTF8String:notification.c_str()], self);
+        block([NSString stringWithUTF8String:notification.c_str()], weakRealm);
     });
     _realm->add_notification(token->_notification);
     return token;
