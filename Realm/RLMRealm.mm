@@ -41,6 +41,10 @@ using namespace std;
 using namespace realm;
 using namespace realm::util;
 
+@interface RLMSchema ()
++ (instancetype)dynamicSchemaFromObjectStoreSchema:(realm::Schema &)objectStoreSchema;
+@end
+
 void RLMDisableSyncToDisk() {
     realm::disable_sync_to_disk();
 }
@@ -330,7 +334,7 @@ static void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool ver
             if (verifyAndAlignColumns) {
                 auto errors = ObjectStore::validate_object_schema(realm.group, schema);
                 if (errors.size()) {
-                    @throw RLMException(ObjectStoreException(errors, schema.name));
+                    @throw RLMException(ObjectSchemaValidationException(schema.name, errors));
                 }
             }
             else {
@@ -341,13 +345,22 @@ static void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool ver
     }
 }
 
-static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, ObjectStore::Schema &alignedSchema) {
+static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema) {
     realm.schema = targetSchema;
-    for (ObjectSchema &aligned:alignedSchema) {
-        RLMObjectSchema *objectSchema = targetSchema[@(aligned.name.c_str())];
+    for (auto &aligned:*realm->_realm->config().schema) {
+        RLMObjectSchema *objectSchema = targetSchema[@(aligned.first.c_str())];
         objectSchema.realm = realm;
-        RLMCopyColumnMapping(objectSchema, aligned);
+        RLMCopyColumnMapping(objectSchema, aligned.second);
     }
+}
+
++ (instancetype)realmWithSharedRealm:(SharedRealm)sharedRealm {
+    RLMRealm *realm = [RLMRealm new];
+    realm->_realm = sharedRealm;
+    realm->_dynamic = YES;
+    RLMRealmSetSchemaAndAlign(realm, [RLMSchema dynamicSchemaFromObjectStoreSchema:*sharedRealm->config().schema]);
+
+    return RLMAutorelease(realm);
 }
 
 + (instancetype)realmWithPath:(NSString *)path
@@ -401,33 +414,27 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
     config.in_memory = inMemory;
     config.encryption_key = key ? static_cast<const char *>(key.bytes) : StringData();
 
-    __weak RLMRealm *weakRealm = realm;
-    config.migration_function = [=](__unused Group *group, ObjectStore::Schema &schema) {
-        RLMRealm *strongRealm = weakRealm;
-        if (!strongRealm) {
-            return;
-        }
-
-        RLMRealmSetSchemaAndAlign(strongRealm, strongRealm.schema, schema);
+    config.migration_function = [=](SharedRealm old_realm, SharedRealm realm) {
         RLMMigrationBlock userBlock = migrationBlockForPath(path);
         if (userBlock) {
-            RLMMigration *migration = [[RLMMigration alloc] initWithRealm:strongRealm key:key error:nil];
+            RLMMigration *migration = [[RLMMigration alloc] initWithRealm:[RLMRealm realmWithSharedRealm:realm] oldRealm:[RLMRealm realmWithSharedRealm:old_realm]];
             [migration execute:userBlock];
         }
     };
+
     try {
         realm->_realm = Realm::get_shared_realm(config);
     }
-    catch (RealmException & ex) {
+    catch (RealmFileException &ex) {
         switch (ex.kind()) {
-            case RealmException::Kind::FilePermissionDenied: {
+            case RealmFileException::Kind::PermissionDenied: {
                 NSString *mode = readonly ? @"read" : @"read-write";
                 NSString *additionalMessage = [NSString stringWithFormat:@"Unable to open a realm at path '%@'. Please use a path where your app has %@ permissions.", path, mode];
                 NSString *newMessage = [NSString stringWithFormat:@"%s\n%@", ex.what(), additionalMessage];
                 RLMSetErrorOrThrow(RLMMakeError(RLMErrorFilePermissionDenied, File::PermissionDenied(newMessage.UTF8String)), outError);
                 break;
             }
-            case RealmException::Kind::IncompatibleLockFile: {
+            case RealmFileException::Kind::IncompatibleLockFile: {
                 NSString *err = @"Realm file is currently open in another process "
                                 "which cannot share access with this process. All "
                                 "processes sharing a single file must be the same "
@@ -437,10 +444,10 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
                 RLMSetErrorOrThrow(RLMMakeError(RLMErrorIncompatibleLockFile, File::PermissionDenied(err.UTF8String)), outError);
                 break;
             }
-            case RealmException::Kind::FileExists:
+            case RealmFileException::Kind::Exists:
                 RLMSetErrorOrThrow(RLMMakeError(RLMErrorFileExists, ex), outError);
                 break;
-            case RealmException::Kind::FileAccessError:
+            case RealmFileException::Kind::AccessError:
                 RLMSetErrorOrThrow(RLMMakeError(RLMErrorFileAccessError, ex), outError);
                 break;
             default:
@@ -464,7 +471,7 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
                 return nil;
             }
             // for readonly realms and dynamic realms without a custom schema just set the schema
-            RLMSchema *targetSchema = readonly ? [RLMSchema.sharedSchema copy] : [RLMSchema dynamicSchemaFromRealm:realm];
+            RLMSchema *targetSchema = targetSchema = readonly ? [RLMSchema.sharedSchema copy] : [RLMSchema dynamicSchemaFromRealm:realm];
             RLMRealmSetSchema(realm, targetSchema, true);
         }
         else {
@@ -477,15 +484,15 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema, 
             else {
                 // if we are the first realm at this path, set/align schema or perform migration if needed
                 RLMSchema *targetSchema = customSchema ?: [RLMSchema.sharedSchema copy];
-                ObjectStore::Schema schema;
+                Schema schema;
                 for (RLMObjectSchema *objectSchema in targetSchema.objectSchema) {
-                    schema.push_back(objectSchema.objectStoreCopy);
+                    ObjectSchema os = objectSchema.objectStoreCopy;
+                    schema.emplace(os.name, move(os));
                 }
                 uint64_t newVersion = schemaVersionForPath(path);
                 try {
-                    realm.schema = targetSchema;
                     realm->_realm->update_schema(schema, newVersion);
-                    RLMRealmSetSchemaAndAlign(realm, targetSchema, schema);
+                    RLMRealmSetSchemaAndAlign(realm, targetSchema);
                 } catch (const std::exception & exception) {
                     RLMSetErrorOrThrow(RLMMakeError(RLMException(exception)), outError);
                     return nil;
@@ -790,9 +797,11 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
 
     key = validatedKey(key) ?: keyForPath(realmPath);
 
-    NSError *error;
-    [RLMRealm realmWithPath:realmPath key:key readOnly:NO inMemory:NO dynamic:YES schema:[RLMSchema.sharedSchema copy] error:&error];
-    return error;
+    @autoreleasepool {
+        NSError *error;
+        [RLMRealm realmWithPath:realmPath key:key readOnly:NO inMemory:NO dynamic:NO schema:nil error:&error];
+        return error;
+    }
 }
 
 - (RLMObject *)createObject:(NSString *)className withValue:(id)value {

@@ -227,21 +227,23 @@ static void RLMAssertRealmSchemaMatchesTable(id self, RLMRealm *realm) {
         XCTAssertThrows([self realmWithTestPath], @"Migration should be required");
     }
 
-    // apply migration
-    [RLMRealm setSchemaVersion:1 forRealmAtPath:RLMTestRealmPath() withMigrationBlock:^(RLMMigration *migration, uint64_t oldSchemaVersion) {
-        XCTAssertEqual(oldSchemaVersion, 0U, @"Initial schema version should be 0");
-        [migration enumerateObjects:MigrationObject.className
-                              block:^(RLMObject *oldObject, RLMObject *newObject) {
-            XCTAssertThrows(oldObject[@"stringCol"], @"stringCol should not exist on old object");
-            NSNumber *intObj;
-            XCTAssertNoThrow(intObj = oldObject[@"intCol"], @"Should be able to access intCol on oldObject");
-            XCTAssertEqualObjects(newObject[@"intCol"], oldObject[@"intCol"]);
-            NSString *stringObj = [NSString stringWithFormat:@"%@", intObj];
-            XCTAssertNoThrow(newObject[@"stringCol"] = stringObj, @"Should be able to set stringCol");
+    @autoreleasepool {
+        // apply migration
+        [RLMRealm setSchemaVersion:1 forRealmAtPath:RLMTestRealmPath() withMigrationBlock:^(RLMMigration *migration, uint64_t oldSchemaVersion) {
+            XCTAssertEqual(oldSchemaVersion, 0U, @"Initial schema version should be 0");
+            [migration enumerateObjects:MigrationObject.className
+                                  block:^(RLMObject *oldObject, RLMObject *newObject) {
+                XCTAssertThrows(oldObject[@"stringCol"], @"stringCol should not exist on old object");
+                NSNumber *intObj;
+                XCTAssertNoThrow(intObj = oldObject[@"intCol"], @"Should be able to access intCol on oldObject");
+                XCTAssertEqualObjects(newObject[@"intCol"], oldObject[@"intCol"]);
+                NSString *stringObj = [NSString stringWithFormat:@"%@", intObj];
+                XCTAssertNoThrow(newObject[@"stringCol"] = stringObj, @"Should be able to set stringCol");
+            }];
         }];
-    }];
-    [RLMRealm migrateRealmAtPath:RLMTestRealmPath()];
-
+        [RLMRealm migrateRealmAtPath:RLMTestRealmPath()];
+    }
+    
     // verify migration
     @autoreleasepool {
         RLMRealm *realm = [self realmWithTestPath];
