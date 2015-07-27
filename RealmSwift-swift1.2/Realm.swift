@@ -557,7 +557,7 @@ public enum Notification: String {
     an autorefresh occurs, `refresh()` is called, after an implicit refresh from
     `beginWriteTransaction()`, and after a local write transaction is committed.
     */
-    case DidChange = "RLMRealmDidChangeNotification"
+    case DidChange = "DidChangeNotification"
 
     /**
     Posted when a write transaction has been committed to a realm on a different thread for the same
@@ -569,7 +569,7 @@ public enum Notification: String {
     While not refreshing is allowed, it may lead to large Realm files as Realm has to keep an extra
     copy of the data for the un-refreshed Realm.
     */
-    case RefreshRequired = "RLMRealmRefreshRequiredNotification"
+    case RefreshRequired = "RefreshRequiredNotification"
 }
 
 /// Closure to run when the data in a Realm was modified.
