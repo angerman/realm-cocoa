@@ -323,28 +323,6 @@ static void RLMCopyColumnMapping(RLMObjectSchema *targetSchema, const ObjectSche
     }];
 }
 
-static void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool verifyAndAlignColumns) {
-    realm.schema = targetSchema;
-    for (RLMObjectSchema *objectSchema in realm.schema.objectSchema) {
-        objectSchema.realm = realm;
-
-        // read-only realms may be missing tables entirely
-        if (verifyAndAlignColumns && objectSchema.table) {
-            ObjectSchema schema = objectSchema.objectStoreCopy;
-            if (verifyAndAlignColumns) {
-                auto errors = ObjectStore::validate_object_schema(realm.group, schema);
-                if (errors.size()) {
-                    @throw RLMException(ObjectSchemaValidationException(schema.name, errors));
-                }
-            }
-            else {
-                ObjectStore::update_column_mapping(realm.group, schema);
-            }
-            RLMCopyColumnMapping(objectSchema, schema);
-        }
-    }
-}
-
 static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema) {
     RLMSchema *sharedSchema = [RLMSchema sharedSchema];
 
@@ -472,42 +450,35 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema) 
     // we need to protect the realm cache and accessors cache
     static id initLock = [NSObject new];
     @synchronized(initLock) {
-        // create tables, set schema, and create accessors when needed
-        if (readonly || (dynamic && !customSchema)) {
-            if (realm->_realm->config().schema_version == realm::ObjectStore::NotVersioned) {
-                RLMSetErrorOrThrow([NSError errorWithDomain:RLMErrorDomain code:RLMErrorFail userInfo:@{NSLocalizedDescriptionKey:@"Cannot open an uninitialized realm in read-only mode"}], outError);
-                return nil;
+        // check cache for existing cached realms with the same path
+        RLMRealm *existingRealm = RLMGetAnyCachedRealmForPath(path);
+        if (existingRealm) {
+            // if we have a cached realm on another thread, copy without a transaction
+            realm.schema = [existingRealm.schema shallowCopy];
+            for (RLMObjectSchema *objectSchema in realm.schema.objectSchema) {
+                objectSchema.realm = realm;
             }
-            // for readonly realms and dynamic realms without a custom schema just set the schema
-            RLMSchema *targetSchema = targetSchema = readonly ? [RLMSchema.sharedSchema copy] : [RLMSchema dynamicSchemaFromRealm:realm];
-            RLMRealmSetSchema(realm, targetSchema, true);
         }
         else {
-            // check cache for existing cached realms with the same path
-            RLMRealm *existingRealm = RLMGetAnyCachedRealmForPath(path);
-            if (existingRealm) {
-                // if we have a cached realm on another thread, copy without a transaction
-                RLMRealmSetSchema(realm, [existingRealm.schema shallowCopy], false);
+            // if we are the first realm at this path, set/align schema or perform migration if needed
+            RLMSchema *targetSchema = customSchema ?: [RLMSchema.sharedSchema copy];
+            Schema schema;
+            for (RLMObjectSchema *objectSchema in targetSchema.objectSchema) {
+                ObjectSchema os = objectSchema.objectStoreCopy;
+                schema.emplace(os.name, move(os));
             }
-            else {
-                // if we are the first realm at this path, set/align schema or perform migration if needed
-                RLMSchema *targetSchema = customSchema ?: [RLMSchema.sharedSchema copy];
-                Schema schema;
-                for (RLMObjectSchema *objectSchema in targetSchema.objectSchema) {
-                    ObjectSchema os = objectSchema.objectStoreCopy;
-                    schema.emplace(os.name, move(os));
-                }
-                uint64_t newVersion = schemaVersionForPath(path);
-                try {
-                    realm->_realm->update_schema(schema, newVersion);
-                    RLMRealmSetSchemaAndAlign(realm, targetSchema);
-                } catch (const std::exception & exception) {
-                    RLMSetErrorOrThrow(RLMMakeError(RLMException(exception)), outError);
-                    return nil;
-                }
+            uint64_t newVersion = schemaVersionForPath(path);
+            try {
+                realm->_realm->update_schema(schema, newVersion);
+                RLMRealmSetSchemaAndAlign(realm, targetSchema);
+            } catch (const std::exception & exception) {
+                RLMSetErrorOrThrow(RLMMakeError(RLMException(exception)), outError);
+                return nil;
             }
+        }
 
-            // initializing the schema started a read transaction, so end it
+        // initializing the schema started a read transaction, so end it
+        if (!readonly) {
             [realm invalidate];
         }
 
