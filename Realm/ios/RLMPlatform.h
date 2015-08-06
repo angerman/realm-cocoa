@@ -17,5 +17,5 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #if !TARGET_OS_IPHONE
-#error Attempting to use Realm's iOS framework in an OSX project.
+#error Attempting to use Realm's iOS framework in an OSX or watchOS project.
 #endif

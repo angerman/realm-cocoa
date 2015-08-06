@@ -12,6 +12,16 @@ INFOPLIST_FILE = Realm/Realm-Info.plist;
 PRODUCT_NAME = Realm;
 PRODUCT_BUNDLE_IDENTIFIER = io.realm.Realm;
 
+REALM_EXCLUDED_SOURCE_FILES[sdk=iphone*] = Realm/osx/* Realm/watchos/*;
+REALM_EXCLUDED_SOURCE_FILES[sdk=macosx*] = Realm/ios/* Realm/watchos/*;
+REALM_EXCLUDED_SOURCE_FILES[sdk=watch*] = Realm/ios/* Realm/osx/*;
+
+EXCLUDED_SOURCE_FILE_NAMES = $(inherited) $(REALM_EXCLUDED_SOURCE_FILES)
+
 FRAMEWORK_SEARCH_PATHS = $(REALM_FRAMEWORK_PATH);
 
 OTHER_LDFLAGS = $(inherited) $(REALM_CORE_LD_FLAGS)
+
+// For static lib only
+//MACH_O_TYPE = staticlib
+//OTHER_LIBTOOLFLAGS = $(OTHER_LDFLAGS) $(inherited)

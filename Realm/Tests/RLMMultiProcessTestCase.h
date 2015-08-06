@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#if TARGET_OS_MAC && !TARGET_OS_SIMULATOR
-
 #import "RLMTestCase.h"
+
+#if TARGET_OS_MAC && !TARGET_OS_SIMULATOR
 
 @interface RLMMultiProcessTestCase : RLMTestCase
 // if true, this is running the main test process

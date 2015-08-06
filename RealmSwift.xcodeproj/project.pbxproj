@@ -29,6 +29,9 @@
 		5DE0B6D21B1001AE007831D9 /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CA5BCC1AC0951C007338C5 /* PerformanceTests.swift */; };
 		C0027B071AAF6FBC00F013A2 /* SchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0027B061AAF6FBC00F013A2 /* SchemaTests.swift */; };
 		C0027B0B1AAF736700F013A2 /* ObjectSchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0027B0A1AAF736700F013A2 /* ObjectSchemaTests.swift */; };
+		C01E95391B74054C0009D58A /* RLMPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = C01E95341B74054C0009D58A /* RLMPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C01E953A1B74054C0009D58A /* RLMPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = C01E95361B74054C0009D58A /* RLMPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C01E953B1B74054C0009D58A /* RLMPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = C01E95381B74054C0009D58A /* RLMPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C0240C2B1A84090000858BFA /* RealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0240C2A1A84090000858BFA /* RealmTests.swift */; };
 		C0460C081B73F1A5006AC464 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C054076C1B72C3A000D0D423 /* Realm.framework */; };
 		C0460C091B73F2F9006AC464 /* SwiftArrayPropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0992C411B72DAA000C98D32 /* SwiftArrayPropertyTests.swift */; };
@@ -233,6 +236,9 @@
 		554A51CE3FAED0A637EBFEBF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Realm/Tests/TestHost/main.m; sourceTree = SOURCE_ROOT; };
 		C0027B061AAF6FBC00F013A2 /* SchemaTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SchemaTests.swift; path = RealmSwift/Tests/SchemaTests.swift; sourceTree = SOURCE_ROOT; };
 		C0027B0A1AAF736700F013A2 /* ObjectSchemaTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ObjectSchemaTests.swift; path = RealmSwift/Tests/ObjectSchemaTests.swift; sourceTree = SOURCE_ROOT; };
+		C01E95341B74054C0009D58A /* RLMPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RLMPlatform.h; sourceTree = "<group>"; };
+		C01E95361B74054C0009D58A /* RLMPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RLMPlatform.h; sourceTree = "<group>"; };
+		C01E95381B74054C0009D58A /* RLMPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RLMPlatform.h; sourceTree = "<group>"; };
 		C0240C2A1A84090000858BFA /* RealmTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmTests.swift; path = RealmSwift/Tests/RealmTests.swift; sourceTree = SOURCE_ROOT; };
 		C04DAEBD1A8E7FBD008A9623 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Util.swift; path = RealmSwift/Util.swift; sourceTree = SOURCE_ROOT; };
 		C054076C1B72C3A000D0D423 /* Realm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Realm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -524,9 +530,36 @@
 			path = Configuration/RealmSwift;
 			sourceTree = "<group>";
 		};
+		C01E95331B74054C0009D58A /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				C01E95341B74054C0009D58A /* RLMPlatform.h */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		C01E95351B74054C0009D58A /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				C01E95361B74054C0009D58A /* RLMPlatform.h */,
+			);
+			path = osx;
+			sourceTree = "<group>";
+		};
+		C01E95371B74054C0009D58A /* watchos */ = {
+			isa = PBXGroup;
+			children = (
+				C01E95381B74054C0009D58A /* RLMPlatform.h */,
+			);
+			path = watchos;
+			sourceTree = "<group>";
+		};
 		C054076D1B72C3A000D0D423 /* Realm */ = {
 			isa = PBXGroup;
 			children = (
+				C01E95331B74054C0009D58A /* ios */,
+				C01E95351B74054C0009D58A /* osx */,
+				C01E95371B74054C0009D58A /* watchos */,
 				C0992CB31B72EE1100C98D32 /* Swift */,
 				C086B4221B72C6BD00024DE5 /* ObjectStore */,
 				C086B4311B72C6E400024DE5 /* RLMAccessor.h */,
@@ -698,14 +731,17 @@
 				C086B4731B72C6E400024DE5 /* RLMDefines.h in Headers */,
 				C086B4741B72C6E400024DE5 /* RLMListBase.h in Headers */,
 				C086B4761B72C6E400024DE5 /* RLMMigration.h in Headers */,
+				C01E953A1B74054C0009D58A /* RLMPlatform.h in Headers */,
 				C086B4781B72C6E400024DE5 /* RLMMigration_Private.h in Headers */,
 				C086B4791B72C6E400024DE5 /* RLMObject.h in Headers */,
 				C086B47D1B72C6E400024DE5 /* RLMObjectBase.h in Headers */,
 				C086B47F1B72C6E400024DE5 /* RLMObjectSchema.h in Headers */,
 				C086B4811B72C6E400024DE5 /* RLMObjectSchema_Private.h in Headers */,
 				C086B4821B72C6E400024DE5 /* RLMObjectSchema_Private.hpp in Headers */,
+				C01E953B1B74054C0009D58A /* RLMPlatform.h in Headers */,
 				C086B4831B72C6E400024DE5 /* RLMObjectStore.h in Headers */,
 				C086B47B1B72C6E400024DE5 /* RLMObject_Private.h in Headers */,
+				C01E95391B74054C0009D58A /* RLMPlatform.h in Headers */,
 				C086B4851B72C6E400024DE5 /* RLMProperty.h in Headers */,
 				C086B4871B72C6E400024DE5 /* RLMProperty_Private.h in Headers */,
 				C086B4881B72C6E400024DE5 /* RLMQueryUtil.hpp in Headers */,
@@ -775,7 +811,6 @@
 				C086B4A21B72CB7000024DE5 /* Download Core */,
 				C05407671B72C3A000D0D423 /* Sources */,
 				C05407691B72C3A000D0D423 /* Headers */,
-				C086B49E1B72C8F600024DE5 /* Get Platform */,
 				C054076A1B72C3A000D0D423 /* Resources */,
 			);
 			buildRules = (
@@ -907,21 +942,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo \"#define REALM_COCOA_VERSION @\\\"$(sh build.sh get-version)\\\"\" > ${DERIVED_FILE_DIR}/RLMVersion.h";
-		};
-		C086B49E1B72C8F600024DE5 /* Get Platform */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Get Platform";
-			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(PUBLIC_HEADERS_FOLDER_PATH)/RLMPlatform.h",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# echo \"\" > ${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/RLMPlatform.h\n";
 		};
 		C086B4A21B72CB7000024DE5 /* Download Core */ = {
 			isa = PBXShellScriptBuildPhase;
