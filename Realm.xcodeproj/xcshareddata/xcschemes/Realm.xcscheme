@@ -17,7 +17,7 @@
                BlueprintIdentifier = "C054076B1B72C3A000D0D423"
                BuildableName = "Realm.framework"
                BlueprintName = "Realm"
-               ReferencedContainer = "container:RealmSwift.xcodeproj">
+               ReferencedContainer = "container:Realm.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -31,7 +31,7 @@
                BlueprintIdentifier = "C0992C181B72DA3500C98D32"
                BuildableName = "Realm Tests.xctest"
                BlueprintName = "Realm Tests"
-               ReferencedContainer = "container:RealmSwift.xcodeproj">
+               ReferencedContainer = "container:Realm.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -49,7 +49,7 @@
                BlueprintIdentifier = "C0992C181B72DA3500C98D32"
                BuildableName = "Realm Tests.xctest"
                BlueprintName = "Realm Tests"
-               ReferencedContainer = "container:RealmSwift.xcodeproj">
+               ReferencedContainer = "container:Realm.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -59,7 +59,7 @@
             BlueprintIdentifier = "C054076B1B72C3A000D0D423"
             BuildableName = "Realm.framework"
             BlueprintName = "Realm"
-            ReferencedContainer = "container:RealmSwift.xcodeproj">
+            ReferencedContainer = "container:Realm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -81,7 +81,7 @@
             BlueprintIdentifier = "C054076B1B72C3A000D0D423"
             BuildableName = "Realm.framework"
             BlueprintName = "Realm"
-            ReferencedContainer = "container:RealmSwift.xcodeproj">
+            ReferencedContainer = "container:Realm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -99,7 +99,7 @@
             BlueprintIdentifier = "C054076B1B72C3A000D0D423"
             BuildableName = "Realm.framework"
             BlueprintName = "Realm"
-            ReferencedContainer = "container:RealmSwift.xcodeproj">
+            ReferencedContainer = "container:Realm.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

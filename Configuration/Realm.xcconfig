@@ -18,10 +18,11 @@ REALM_EXCLUDED_SOURCE_FILES[sdk=watch*] = Realm/ios/* Realm/osx/*;
 
 EXCLUDED_SOURCE_FILE_NAMES = $(inherited) $(REALM_EXCLUDED_SOURCE_FILES)
 
-FRAMEWORK_SEARCH_PATHS = $(REALM_FRAMEWORK_PATH);
-
 OTHER_LDFLAGS = $(inherited) $(REALM_CORE_LD_FLAGS)
 
-// For static lib only
-//MACH_O_TYPE = staticlib
-//OTHER_LIBTOOLFLAGS = $(OTHER_LDFLAGS) $(inherited)
+REALM_MACH_O_TYPE = mh_dylib
+REALM_OTHER_LIBTOOLFLAGS = $(inherited)
+
+// These are needed to allow overriding to build a static lib via xcodebuild
+MACH_O_TYPE = $(REALM_MACH_O_TYPE)
+OTHER_LIBTOOLFLAGS = $(REALM_OTHER_LIBTOOLFLAGS)
