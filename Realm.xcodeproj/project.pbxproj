@@ -771,6 +771,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 023B19C51A4234390067FB81 /* Build configuration list for PBXNativeTarget "RealmSwift" */;
 			buildPhases = (
+				C01E953C1B7420D50009D58A /* Set Swift Version */,
 				023B19A31A4234380067FB81 /* Sources */,
 				023B19A41A4234380067FB81 /* Frameworks */,
 			);
@@ -809,6 +810,7 @@
 			buildPhases = (
 				C086B49D1B72C8CA00024DE5 /* Get Version Number */,
 				C086B4A21B72CB7000024DE5 /* Download Core */,
+				C01E953C1B7420D50009D58A /* Set Swift Version */,
 				C05407671B72C3A000D0D423 /* Sources */,
 				C05407691B72C3A000D0D423 /* Headers */,
 				C054076A1B72C3A000D0D423 /* Resources */,
@@ -927,6 +929,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		C01E953C1B7420D50009D58A /* Set Swift Version */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Set Swift Version";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "sh build.sh set-swift-version";
+		};
 		C086B49D1B72C8CA00024DE5 /* Get Version Number */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
