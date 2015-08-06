@@ -1,0 +1,17 @@
+SUPPORTED_PLATFORMS = macosx iphonesimulator iphoneos watchsimulator watchos;
+APPLICATION_EXTENSION_API_ONLY = YES;
+SKIP_INSTALL = YES;
+
+DYLIB_COMPATIBILITY_VERSION = 1;
+DYLIB_CURRENT_VERSION = 1;
+DYLIB_INSTALL_NAME_BASE = @rpath;
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
+DEFINES_MODULE = YES;
+MODULEMAP_FILE = Realm/module.modulemap
+INFOPLIST_FILE = Realm/Realm-Info.plist;
+PRODUCT_NAME = Realm;
+PRODUCT_BUNDLE_IDENTIFIER = io.realm.Realm;
+
+FRAMEWORK_SEARCH_PATHS = $(REALM_FRAMEWORK_PATH);
+
+OTHER_LDFLAGS = $(inherited) $(REALM_CORE_LD_FLAGS)

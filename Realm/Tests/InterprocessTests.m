@@ -20,6 +20,8 @@
 
 #import "RLMConstants.h"
 
+#if TARGET_OS_MAC && !TARGET_OS_SIMULATOR
+
 @interface InterprocessTest : RLMMultiProcessTestCase
 @end
 
@@ -329,3 +331,5 @@
 }
 
 @end
+
+#endif

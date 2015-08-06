@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#if TARGET_OS_MAC && !TARGET_OS_SIMULATOR
+
 #import "RLMTestCase.h"
 
 @interface RLMMultiProcessTestCase : RLMTestCase
@@ -31,3 +33,5 @@
 
 #define RLMRunChildAndWait() \
     XCTAssertEqual(0, [self runChildAndWait], @"Tests in child process failed")
+
+#endif
