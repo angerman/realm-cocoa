@@ -18,7 +18,7 @@
 
 #import "RLMMultiProcessTestCase.h"
 
-#if TARGET_OS_MAC && !TARGET_OS_SIMULATOR
+#if RLM_TEST_TARGET_OSX
 
 @interface RLMMultiProcessTestCase ()
 @property (nonatomic) bool isParent;
