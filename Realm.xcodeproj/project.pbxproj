@@ -54,6 +54,7 @@
 		C06C73FE1B791D6F0027FF85 /* object_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C06C73F71B791D6F0027FF85 /* object_store.cpp */; };
 		C06C73FF1B791D6F0027FF85 /* object_store.hpp in Headers */ = {isa = PBXBuildFile; fileRef = C06C73F81B791D6F0027FF85 /* object_store.hpp */; };
 		C06C74001B791D6F0027FF85 /* property.hpp in Headers */ = {isa = PBXBuildFile; fileRef = C06C73F91B791D6F0027FF85 /* property.hpp */; };
+		C06C74011B7958910027FF85 /* strip-frameworks.sh in Resources */ = {isa = PBXBuildFile; fileRef = C0F92D281B72C5CC007B0FED /* strip-frameworks.sh */; };
 		C081AEB21AAF865C00BA3E31 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C081AEB11AAF865C00BA3E31 /* PropertyTests.swift */; };
 		C086B4671B72C6E400024DE5 /* RLMAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = C086B4311B72C6E400024DE5 /* RLMAccessor.h */; };
 		C086B4681B72C6E400024DE5 /* RLMAccessor.mm in Sources */ = {isa = PBXBuildFile; fileRef = C086B4321B72C6E400024DE5 /* RLMAccessor.mm */; };
@@ -910,6 +911,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C06C74011B7958910027FF85 /* strip-frameworks.sh in Resources */,
 				C086B4A01B72CB4700024DE5 /* CHANGELOG.md in Resources */,
 				C086B4A11B72CB4F00024DE5 /* LICENSE in Resources */,
 			);

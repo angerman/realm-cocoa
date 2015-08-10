@@ -113,11 +113,11 @@ build_ios_combined() {
     local config="$CONFIGURATION"
 
     # Derive build paths
-    local build_products_path="build/DerivedData/$module_name/Build/Products"
+    local build_products_path="build/DerivedData/Realm/Build/Products"
     local product_name="$module_name.framework"
     local binary_path="$module_name"
-    local iphoneos_path="$build_products_path/$config-iphoneos$scope_suffix/$product_name"
-    local iphonesimulator_path="$build_products_path/$config-iphonesimulator$scope_suffix/$product_name"
+    local iphoneos_path="$build_products_path/$config-iphoneos/$product_name"
+    local iphonesimulator_path="$build_products_path/$config-iphonesimulator/$product_name"
     local out_path="build/ios$scope_suffix$version_suffix"
 
     # Build for each platform
@@ -143,11 +143,11 @@ build_watchos_combined() {
     local config="$CONFIGURATION"
 
     # Derive build paths
-    local build_products_path="build/DerivedData/$module_name/Build/Products"
+    local build_products_path="build/DerivedData/Realm/Build/Products"
     local product_name="$module_name.framework"
     local binary_path="$module_name"
-    local watchos_path="$build_products_path/$config-watchos$scope_suffix/$product_name"
-    local watchsimulator_path="$build_products_path/$config-watchsimulator$scope_suffix/$product_name"
+    local watchos_path="$build_products_path/$config-watchos/$product_name"
+    local watchsimulator_path="$build_products_path/$config-watchsimulator/$product_name"
     local out_path="build/watchos$scope_suffix"
 
     # Build for each platform
@@ -375,8 +375,9 @@ case "$COMMAND" in
         ;;
 
     "ios-swift")
+        sh build.sh ios-dynamic
         build_ios_combined RealmSwift RealmSwift '' "/swift-$REALM_SWIFT_VERSION"
-        cp -R build/ios-dynamic/Realm.framework build/ios/swift-$REALM_SWIFT_VERSION
+        cp -R build/ios-dynamic/Realm.framework "build/ios/swift-$REALM_SWIFT_VERSION"
         exit 0
         ;;
 
@@ -386,6 +387,7 @@ case "$COMMAND" in
         ;;
 
     "watchos-swift")
+        sh build.sh watchos
         build_watchos_combined RealmSwift RealmSwift
         exit 0
         ;;
@@ -399,10 +401,12 @@ case "$COMMAND" in
         ;;
 
     "osx-swift")
+        sh build.sh osx
         xcrealm "-scheme 'RealmSwift' -configuration $CONFIGURATION build"
         destination="build/osx/swift-$REALM_SWIFT_VERSION"
         mkdir -p "$destination"
         cp -R build/DerivedData/Realm/Build/Products/$CONFIGURATION/RealmSwift.framework "$destination"
+        cp -R build/osx/Realm.framework "build/osx/swift-$REALM_SWIFT_VERSION"
         exit 0
         ;;
 
@@ -467,7 +471,7 @@ case "$COMMAND" in
         if [[ "$CONFIGURATION" == "Debug" ]]; then
             COVERAGE_PARAMS="GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES"
         fi
-        xcrealm "-scheme OSX -configuration $CONFIGURATION test $COVERAGE_PARAMS"
+        xcrealm "-scheme Realm -configuration $CONFIGURATION test $COVERAGE_PARAMS"
         exit 0
         ;;
 
