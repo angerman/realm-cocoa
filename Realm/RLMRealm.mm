@@ -387,9 +387,7 @@ static void RLMRealmSetSchemaAndAlign(RLMRealm *realm, RLMSchema *targetSchema) 
     }
 
     key = key ?: keyForPath(path);
-    if ((key = validatedKey(key))) {
-        validateNotInDebugger();
-    }
+    key = validatedKey(key);
 
     realm = [RLMRealm new];
     realm->_dynamic = dynamic;
