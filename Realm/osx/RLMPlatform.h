@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#if !TARGET_OS_MAC || TARGET_OS_SIMULATOR || TARGET_OS_IOS || TARGET_OS_WATCH
-#error Attempting to use Realm's OSX framework in an iOS or watchOS project.
+#ifndef REALM_DISABLE_PLATFORM_CHECK
+#  if !TARGET_OS_MAC || TARGET_OS_SIMULATOR || TARGET_OS_IOS || TARGET_OS_WATCH
+#    error Attempting to use Realm's OSX framework in an iOS or watchOS project.
+#  endif
 #endif
